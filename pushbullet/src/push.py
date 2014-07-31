@@ -21,7 +21,7 @@ def main():
     # print sys.argv
     action = sys.argv[1]
     if action == 'list':
-        req = urllib2.Request("https://api.pushbullet.com/api/devices")
+        req = urllib2.Request("https://api.pushbullet.com/v2/devices")
         req.add_header(*get_auth_header())
         response = urllib2.urlopen(req)
         devices = json.load(response)
@@ -33,21 +33,21 @@ def main():
             encoded_string = base64.urlsafe_b64encode(json.dumps(arg_to_pass))
 
             icon_path = None
-            if device['extras']['android_version']:
+            if device['type'] == 'ios' or device['type'] == 'android':
                 icon_path = 'mobile.png'
             else:
                 icon_path = 'chrome.png'
 
             xml_output += item_format % (device['iden'],
                                          encoded_string,
-                                         device['extras']['model'],
-                                         device['extras']['manufacturer'],
+                                         device['nickname'],
+                                         device['model'],
                                          icon_path)
         xml_output += '</items>'
         print(xml_output)
     elif action == 'push':
         print sys.argv
-        req = urllib2.Request("https://api.pushbullet.com/api/pushes")
+        req = urllib2.Request("https://api.pushbullet.com/v2/pushes")
         req.add_header(*get_auth_header())
 
         args = json.loads(base64.urlsafe_b64decode(sys.argv[2]))
